@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevHub - Complete GitHub Clone</title>
+    <style>
+        :root {
+            --primary-color: #2ea44f;
+            --secondary-color: #0366d6;
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --text-color: #24292e;
+            --border-color: #e1e4e8;
+            --sidebar-bg: #fafbfc;
+            --header-bg: #24292e;
+            --header-text: #ffffff;
+            --ai-color: #8a2be2;
+            --warning-color: #d73a49;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #444d56;
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .logo-image {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            margin-left: 24px;
+        }
+
+        .nav-link {
+            color: var(--header-text);
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 12px;
+            border: 1px solid #444d56;
+            border-radius: 6px;
+            background: #1b1f23;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid #444d56;
+            cursor: pointer;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-width: 180px;
+            display: none;
+            z-index: 1001;
+            margin-top: 8px;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-color);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+            color: var(--warning-color);
+        }
+
+        .dropdown-item:last-child:hover {
+            background: #fff5f5;
+        }
+
+        /* Token Error Banner */
+        .token-error-banner {
+            background: var(--warning-color);
+            color: white;
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .token-error-banner.active {
+            display: flex;
+        }
+
+        .token-error-banner .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            margin-left: 12px;
+        }
+
+        .token-error-banner .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+            padding-top: 24px;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 84px;
+            height: fit-content;
+        }
+
+        .user-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .user-card-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            border: 2px solid var(--border-color);
+        }
+
+        .user-card-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .user-card-username {
+            color: #586069;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .nav-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #586069;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-color);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: 600px;
+        }
+
+        .content-view {
+            display: none;
+        }
+
+        .content-view.active {
+            display: block;
+        }
+
+        /* Repository Grid */
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .repo-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .repo-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .repo-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .repo-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .repo-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .repo-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .repo-description {
+            color: #586069;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .repo-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #586069;
+        }
+
+        .repo-language {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .language-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f1e05a;
+        }
+
+        /* Repository View */
+        .repo-view-header {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .repo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .repo-view-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+        }
+
+        .repo-view-name {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .repo-view-description {
+            color: #586069;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .repo-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: #586069;
+            margin-bottom: 16px;
+        }
+
+        .repo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* File Browser */
+        .file-browser {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .file-header {
+            background: var(--sidebar-bg);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-path {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-list {
+            padding: 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: var(--bg-color);
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            width: 16px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .file-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .file-size {
+            color: #586069;
+            font-size: 12px;
+        }
+
+        /* Code Editor */
+        .code-editor-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .editor-header {
+            background: var(--sidebar-bg);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-content {
+            padding: 0;
+        }
+
+        .code-editor {
+            width: 100%;
+            min-height: 500px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            border: none;
+            padding: 20px;
+            resize: vertical;
+            line-height: 1.5;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            background: var(--card-bg);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: var(--bg-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: #2c974b;
+            border-color: #2c974b;
+        }
+
+        .btn-ai {
+            background: var(--ai-color);
+            color: white;
+            border-color: var(--ai-color);
+        }
+
+        .btn-ai:hover {
+            background: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #586069;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: #586069;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .login-instructions {
+            background: #e7f3ff;
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .login-instructions h3 {
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .login-instructions ol {
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
+        .login-instructions li {
+            margin-bottom: 8px;
+        }
+
+        /* Profile View */
+        .profile-view {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--border-color);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-username {
+            color: #586069;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .profile-bio {
+            color: #586069;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #586069;
+            text-transform: uppercase;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .ai-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--ai-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .ai-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        .ai-chat {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 400px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .ai-chat.active {
+            display: flex;
+        }
+
+        .ai-header {
+            padding: 16px;
+            background: var(--ai-color);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .ai-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-message {
+            padding: 12px;
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.4;
+        }
+
+        .ai-message.user {
+            align-self: flex-end;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .ai-message.bot {
+            align-self: flex-start;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .ai-input-container {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .voice-btn {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-bg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .voice-btn:hover {
+            background: var(--bg-color);
+        }
+
+        .voice-btn.listening {
+            background: var(--warning-color);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .repo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ai-chat {
+                width: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+            
+            .nav-links {
+                order: 3;
+                width: 100%;
+                margin: 12px 0 0 0;
+                justify-content: center;
+            }
+            
+            .search-bar {
+                order: 2;
+                max-width: 100%;
+                margin: 12px 0 0 0;
+            }
+            
+            .ai-chat {
+                width: 300px;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ai-chat {
+                width: 280px;
+                right: -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Token Error Banner -->
+    <div class="token-error-banner" id="token-error-banner">
+        <span>⚠️ GitHub token is invalid or has been deleted</span>
+        <button class="btn" onclick="showTokenModal()">Update Token</button>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header" style="display: none;">
+        <div class="header-content">
+            <div class="logo">
+                <img src="https://avatars.githubusercontent.com/in/2181274?s=30&u=2cb018b11eb4f4a6264c8ab81d20b2d8a1ff11d6&v=4" alt="DevHub" class="logo-image">
+                <span>DevHub</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#" class="nav-link" data-view="dashboard">Dashboard</a>
+                <a href="#" class="nav-link" data-view="repositories">Repositories</a>
+                <a href="#" class="nav-link" data-view="profile">Profile</a>
+                <a href="#" class="nav-link" data-view="settings">Settings</a>
+            </nav>
+            
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search GitHub...">
+            </div>
+            
+            <div class="user-nav">
+                <img id="user-avatar" class="user-avatar" src="" alt="User Avatar">
+                <span class="user-name" id="user-name"></span>
+                <div class="user-dropdown" id="user-dropdown">
+                    <a href="#" class="dropdown-item" data-view="profile">
+                        <span>👤</span>
+                        Your profile
+                    </a>
+                    <a href="#" class="dropdown-item" data-view="repositories">
+                        <span>📚</span>
+                        Your repositories
+                    </a>
+                    <a href="#" class="dropdown-item" onclick="showTokenModal()">
+                        <span>🔑</span>
+                        Update Token
+                    </a>
+                    <a href="#" class="dropdown-item" data-view="settings">
+                        <span>⚙️</span>
+                        Settings
+                    </a>
+                    <div class="dropdown-item" onclick="logout()">
+                        <span>🚪</span>
+                        Sign out
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout" id="main-layout" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="user-card">
+                <img id="sidebar-avatar" class="user-card-avatar" src="" alt="User Avatar">
+                <div class="user-card-name" id="sidebar-name"></div>
+                <div class="user-card-username" id="sidebar-username"></div>
+                <button class="btn" onclick="showEditProfileModal()" style="margin-top: 16px; width: 100%;">Edit profile</button>
+                <button class="btn" onclick="showTokenModal()" style="margin-top: 8px; width: 100%; background: var(--ai-color); color: white;">Update Token</button>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Navigation</div>
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <span>📊</span>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item" data-view="repositories">
+                    <span>📚</span>
+                    Repositories
+                </a>
+                <a href="#" class="nav-item" data-view="profile">
+                    <span>👤</span>
+                    Profile
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Your work</div>
+                <a href="#" class="nav-item" data-view="issues">
+                    <span>🐛</span>
+                    Issues
+                </a>
+                <a href="#" class="nav-item" data-view="pull-requests">
+                    <span>🔀</span>
+                    Pull requests
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Explore</div>
+                <a href="#" class="nav-item" data-view="explore">
+                    <span>🔍</span>
+                    Explore
+                </a>
+                <a href="#" class="nav-item" data-view="trending">
+                    <span>📈</span>
+                    Trending
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div class="content-view active" id="dashboard-view">
+                <h1 style="margin-bottom: 24px; font-size: 24px; font-weight: 600;">Dashboard</h1>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: var(--primary-color);" id="dashboard-repo-count">0</div>
+                        <div style="font-size: 14px; color: #586069;">Repositories</div>
+                    </div>
+                    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: var(--primary-color);" id="dashboard-star-count">0</div>
+                        <div style="font-size: 14px; color: #586069;">Stars</div>
+                    </div>
+                    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: var(--primary-color);" id="dashboard-follower-count">0</div>
+                        <div style="font-size: 14px; color: #586069;">Followers</div>
+                    </div>
+                </div>
+                <h2 style="margin-bottom: 16px; font-size: 20px; font-weight: 600;">Recent Repositories</h2>
+                <div class="repo-grid" id="repos-container">
+                    <!-- Repositories will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Repositories View -->
+            <div class="content-view" id="repositories-view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h1 style="font-size: 24px; font-weight: 600;">Your Repositories</h1>
+                    <button class="btn btn-primary" onclick="showCreateRepoModal()">New repository</button>
+                </div>
+                <div class="repo-grid" id="all-repos-container">
+                    <!-- All repositories will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div class="content-view" id="profile-view">
+                <div class="profile-view">
+                    <div class="profile-header">
+                        <img id="profile-avatar" class="profile-avatar" src="" alt="Profile Avatar">
+                        <div class="profile-info">
+                            <div class="profile-name" id="profile-display-name"></div>
+                            <div class="profile-username" id="profile-username"></div>
+                            <div class="profile-bio" id="profile-bio"></div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="profile-repo-count">0</div>
+                            <div class="stat-label">Repositories</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="profile-follower-count">0</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="profile-following-count">0</div>
+                            <div class="stat-label">Following</div>
+                        </div>
+                    </div>
+                    <div class="repo-actions">
+                        <button class="btn btn-primary" onclick="showEditProfileModal()">Edit Profile</button>
+                        <button class="btn" onclick="showTokenModal()" style="background: var(--ai-color); color: white;">Update Token</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repository View -->
+            <div class="content-view" id="repository-view">
+                <div class="repo-view-header" id="repo-header">
+                    <!-- Repository header will be loaded here -->
+                </div>
+
+                <div class="file-browser" id="file-browser">
+                    <!-- File browser will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Code Editor View -->
+            <div class="content-view" id="code-view">
+                <div class="code-editor-container">
+                    <div class="editor-header">
+                        <div class="file-path" id="current-file-path">Select a file to edit</div>
+                        <div class="file-actions">
+                            <button class="btn" onclick="saveFile()" id="save-file-btn">Save</button>
+                            <button class="btn" onclick="switchView('repository-view')">Back to files</button>
+                        </div>
+                    </div>
+                    <div class="editor-content">
+                        <textarea class="code-editor" id="code-editor" placeholder="Select a file to edit..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Views -->
+            <div class="content-view" id="issues-view">
+                <h1 style="margin-bottom: 24px; font-size: 24px; font-weight: 600;">Issues</h1>
+                <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; text-align: center; color: #586069;">
+                    Issues feature coming soon...
+                </div>
+            </div>
+
+            <div class="content-view" id="settings-view">
+                <h1 style="margin-bottom: 24px; font-size: 24px; font-weight: 600;">Settings</h1>
+                <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; text-align: center; color: #586069;">
+                    <div style="margin-bottom: 16px;">
+                        <h3 style="margin-bottom: 12px;">GitHub Token Management</h3>
+                        <p style="margin-bottom: 16px; color: #586069;">Update your GitHub personal access token if it has been deleted or expired.</p>
+                        <button class="btn btn-primary" onclick="showTokenModal()">Update GitHub Token</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Login -->
+    <div class="login-container" id="login-container">
+        <div class="login-card">
+            <h1 class="login-title">🚀 DevHub</h1>
+            <p class="login-subtitle">A complete GitHub editor in your browser</p>
+            
+            <div class="login-instructions">
+                <h3>🔑 Get Started</h3>
+                <ol>
+                    <li>Go to GitHub Settings → Developer settings → Personal access tokens</li>
+                    <li>Click "Generate new token (classic)"</li>
+                    <li>Select <strong>all repo permissions</strong> and <strong>user permissions</strong></li>
+                    <li>Generate token and paste below</li>
+                </ol>
+                <p style="margin-top: 12px;">
+                    <a href="https://github.com/settings/tokens/new?scopes=repo,user,write:discussion,admin:org,delete_repo" 
+                       target="_blank" style="color: var(--secondary-color); font-weight: 600;">
+                       🎯 Create Full Access Token
+                    </a>
+                </p>
+            </div>
+
+            <div class="form-group">
+                <input type="password" class="form-control" id="github-token" 
+                       placeholder="Paste your GitHub token with full access">
+            </div>
+            <button class="btn btn-primary" id="connect-btn" style="width: 100%; padding: 12px;">
+                Connect to GitHub
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="edit-profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Profile</h2>
+                <button class="close-modal" onclick="closeModal('edit-profile-modal')">×</button>
+            </div>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" id="edit-profile-name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-control" id="edit-profile-bio" rows="4" placeholder="Tell us a little about yourself..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Company</label>
+                    <input type="text" class="form-control" id="edit-profile-company">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" id="edit-profile-location">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Website</label>
+                    <input type="url" class="form-control" id="edit-profile-blog">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('edit-profile-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Repository Modal -->
+    <div class="modal" id="create-repo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New Repository</h2>
+                <button class="close-modal" onclick="closeModal('create-repo-modal')">×</button>
+            </div>
+            <form id="create-repo-form">
+                <div class="form-group">
+                    <label class="form-label">Repository name</label>
+                    <input type="text" class="form-control" id="new-repo-name" required placeholder="awesome-project">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="new-repo-description" rows="3" placeholder="Optional"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="new-repo-private"> Private repository
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="new-repo-readme" checked> Add a README file
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('create-repo-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create repository</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Token Modal -->
+    <div class="modal" id="token-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Update GitHub Token</h2>
+                <button class="close-modal" onclick="closeModal('token-modal')">×</button>
+            </div>
+            <form id="token-form">
+                <div class="form-group">
+                    <label class="form-label">GitHub Personal Access Token</label>
+                    <input type="password" class="form-control" id="update-token" 
+                           placeholder="Paste your new GitHub token" required>
+                    <div style="font-size: 12px; color: #586069; margin-top: 4px;">
+                        Your token will be updated immediately and stored securely in your browser.
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('token-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Token</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brad AI Assistant -->
+    <div class="ai-assistant">
+        <div class="ai-chat" id="ai-chat">
+            <div class="ai-header">
+                <span>🤖</span>
+                <div class="ai-title">Brad AI Assistant</div>
+            </div>
+            <div class="ai-messages" id="ai-messages">
+                <div class="ai-message bot">
+                    Hi! I'm Brad AI, your GitHub assistant. I can help you create repositories, add files, and more. Just tell me what you need! Click the microphone to use voice commands.
+                </div>
+            </div>
+            <div class="ai-input-container">
+                <input type="text" class="ai-input" id="ai-input" placeholder="Type your command or use voice...">
+                <button class="voice-btn" id="voice-btn" title="Click to use voice commands">🎤</button>
+            </div>
+        </div>
+        <div class="ai-toggle" id="ai-toggle">
+            🤖
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let userData = null;
+        let accessToken = null;
+        let repositories = [];
+        let currentRepo = null;
+        let currentFiles = [];
+        let currentFileContent = null;
+        let recognition = null;
+
+        // Initialize
+        function init() {
+            const savedToken = localStorage.getItem('devhub-token');
+            if (savedToken) {
+                accessToken = savedToken;
+                showDashboard();
+                loadUserData();
+            }
+            
+            // Set up AI assistant
+            setupAIAssistant();
+            setupVoiceRecognition();
+            setupUserDropdown();
+            setupTokenModal();
+        }
+
+        // Setup token modal
+        function setupTokenModal() {
+            document.getElementById('token-form').addEventListener('submit', updateToken);
+        }
+
+        // Show token modal
+        function showTokenModal() {
+            document.getElementById('update-token').value = '';
+            showModal('token-modal');
+            // Close user dropdown if open
+            document.getElementById('user-dropdown').classList.remove('active');
+        }
+
+        // Update token function
+        async function updateToken(event) {
+            event.preventDefault();
+            
+            const newToken = document.getElementById('update-token').value.trim();
+            if (!newToken) {
+                alert('Please enter a valid GitHub token');
+                return;
+            }
+
+            try {
+                // Test the new token
+                const testResponse = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `Bearer ${newToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!testResponse.ok) {
+                    throw new Error('Invalid GitHub token');
+                }
+
+                // Update token
+                accessToken = newToken;
+                localStorage.setItem('devhub-token', accessToken);
+                
+                // Close modal
+                closeModal('token-modal');
+                
+                // Hide error banner if visible
+                document.getElementById('token-error-banner').classList.remove('active');
+                
+                // Reload user data with new token
+                await loadUserData();
+                
+                // Show success message
+                alert('Token updated successfully!');
+                
+            } catch (error) {
+                alert('Error updating token: ' + error.message);
+            }
+        }
+
+        // Enhanced error handling for API calls
+        async function handleApiCall(apiCall) {
+            try {
+                return await apiCall();
+            } catch (error) {
+                if (error.status === 401 || error.message.includes('Bad credentials')) {
+                    // Token is invalid
+                    showTokenError();
+                    throw error;
+                }
+                throw error;
+            }
+        }
+
+        // Show token error banner
+        function showTokenError() {
+            document.getElementById('token-error-banner').classList.add('active');
+        }
+
+        // Hide token error banner
+        function hideTokenError() {
+            document.getElementById('token-error-banner').classList.remove('active');
+        }
+
+        // Setup user dropdown
+        function setupUserDropdown() {
+            const userAvatar = document.getElementById('user-avatar');
+            const userName = document.getElementById('user-name');
+            const userDropdown = document.getElementById('user-dropdown');
+
+            // Toggle dropdown when clicking user info
+            userAvatar.addEventListener('click', toggleDropdown);
+            userName.addEventListener('click', toggleDropdown);
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userDropdown.contains(e.target) && e.target !== userAvatar && e.target !== userName) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+
+            // Handle dropdown item clicks
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (item.onclick) return; // Skip if item has onclick handler
+                    e.preventDefault();
+                    const view = item.dataset.view;
+                    if (view) {
+                        switchView(view);
+                        userDropdown.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            const userDropdown = document.getElementById('user-dropdown');
+            userDropdown.classList.toggle('active');
+        }
+
+        // Logout function
+        function logout() {
+            // Clear stored token
+            localStorage.removeItem('devhub-token');
+            accessToken = null;
+            userData = null;
+            repositories = [];
+            
+            // Reset UI to login state
+            document.getElementById('header').style.display = 'none';
+            document.getElementById('main-layout').style.display = 'none';
+            document.getElementById('login-container').style.display = 'flex';
+            
+            // Clear token input
+            document.getElementById('github-token').value = '';
+            
+            // Close user dropdown
+            document.getElementById('user-dropdown').classList.remove('active');
+            
+            // Hide token error banner
+            hideTokenError();
+            
+            // Show logout message
+            alert('You have been logged out successfully!');
+        }
+
+        // Setup voice recognition
+        function setupVoiceRecognition() {
+            // Check if browser supports speech recognition
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    document.getElementById('voice-btn').classList.add('listening');
+                    addMessage("🎤 Listening...", 'bot');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('ai-input').value = transcript;
+                    addMessage(transcript, 'user');
+                    processAICommand(transcript);
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    document.getElementById('voice-btn').classList.remove('listening');
+                    addMessage("❌ Voice recognition error. Please try again.", 'bot');
+                };
+
+                recognition.onend = function() {
+                    document.getElementById('voice-btn').classList.remove('listening');
+                };
+            } else {
+                // Browser doesn't support speech recognition
+                document.getElementById('voice-btn').style.display = 'none';
+                addMessage("⚠️ Voice commands not supported in this browser. Please use text input.", 'bot');
+            }
+        }
+
+        // Start voice recognition
+        function startVoiceRecognition() {
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Error starting speech recognition:', error);
+                    addMessage("❌ Could not start voice recognition. Please try again.", 'bot');
+                }
+            }
+        }
+
+        // Connect with token
+        async function connectWithToken() {
+            const token = document.getElementById('github-token').value.trim();
+            if (!token) {
+                alert('Please enter your GitHub Personal Access Token');
+                return;
+            }
+
+            try {
+                accessToken = token;
+                localStorage.setItem('devhub-token', accessToken);
+                showDashboard();
+                await loadUserData();
+            } catch (error) {
+                alert('Connection failed: ' + error.message);
+                localStorage.removeItem('devhub-token');
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('header').style.display = 'block';
+            document.getElementById('main-layout').style.display = 'grid';
+        }
+
+        // Load user data with enhanced error handling
+        async function loadUserData() {
+            try {
+                const userResponse = await fetch('https://api.github.com/user', {
+                    headers: getHeaders()
+                });
+                
+                if (!userResponse.ok) {
+                    if (userResponse.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to load user data');
+                }
+                
+                userData = await userResponse.json();
+                updateUserInterface();
+                await loadRepositories();
+                updateDashboardStats();
+                updateProfileView();
+                hideTokenError(); // Hide error banner if everything works
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                } else {
+                    alert('Failed to load GitHub data');
+                }
+            }
+        }
+
+        // Load repositories with enhanced error handling
+        async function loadRepositories() {
+            try {
+                const response = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to load repositories');
+                }
+                
+                repositories = await response.json();
+                displayRepositories();
+                hideTokenError(); // Hide error banner if everything works
+            } catch (error) {
+                console.error('Failed to load repositories:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                }
+            }
+        }
+
+        // Display repositories
+        function displayRepositories() {
+            const container = document.getElementById('repos-container');
+            const allReposContainer = document.getElementById('all-repos-container');
+            
+            const reposHTML = repositories.slice(0, 6).map(repo => `
+                <div class="repo-card" onclick="openRepository('${repo.full_name}')">
+                    <div class="repo-header">
+                        <img src="${repo.owner.avatar_url}" alt="${repo.owner.login}" class="repo-avatar">
+                        <div class="repo-info">
+                            <div class="repo-name">${repo.full_name}</div>
+                            <div class="repo-description">${repo.description || 'No description provided'}</div>
+                            <div class="repo-meta">
+                                <span class="repo-language">
+                                    <span class="language-color" style="background-color: ${getLanguageColor(repo.language)}"></span>
+                                    ${repo.language || 'Unknown'}
+                                </span>
+                                <span>⭐ ${repo.stargazers_count}</span>
+                                <span>🍴 ${repo.forks_count}</span>
+                                <span>🔒 ${repo.private ? 'Private' : 'Public'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const allReposHTML = repositories.map(repo => `
+                <div class="repo-card" onclick="openRepository('${repo.full_name}')">
+                    <div class="repo-header">
+                        <img src="${repo.owner.avatar_url}" alt="${repo.owner.login}" class="repo-avatar">
+                        <div class="repo-info">
+                            <div class="repo-name">${repo.full_name}</div>
+                            <div class="repo-description">${repo.description || 'No description provided'}</div>
+                            <div class="repo-meta">
+                                <span class="repo-language">
+                                    <span class="language-color" style="background-color: ${getLanguageColor(repo.language)}"></span>
+                                    ${repo.language || 'Unknown'}
+                                </span>
+                                <span>⭐ ${repo.stargazers_count}</span>
+                                <span>🍴 ${repo.forks_count}</span>
+                                <span>🔒 ${repo.private ? 'Private' : 'Public'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = reposHTML;
+            allReposContainer.innerHTML = allReposHTML;
+        }
+
+        // Update dashboard stats
+        function updateDashboardStats() {
+            const totalStars = repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+            
+            document.getElementById('dashboard-repo-count').textContent = repositories.length;
+            document.getElementById('dashboard-star-count').textContent = totalStars;
+            document.getElementById('dashboard-follower-count').textContent = userData.followers;
+        }
+
+        // Update profile view
+        function updateProfileView() {
+            document.getElementById('profile-avatar').src = userData.avatar_url;
+            document.getElementById('profile-display-name').textContent = userData.name || userData.login;
+            document.getElementById('profile-username').textContent = userData.login;
+            document.getElementById('profile-bio').textContent = userData.bio || 'No bio provided';
+            
+            document.getElementById('profile-repo-count').textContent = userData.public_repos;
+            document.getElementById('profile-follower-count').textContent = userData.followers;
+            document.getElementById('profile-following-count').textContent = userData.following;
+        }
+
+        // Open repository with error handling
+        async function openRepository(repoFullName) {
+            try {
+                currentRepo = repositories.find(r => r.full_name === repoFullName);
+                if (!currentRepo) return;
+
+                // Update repository header
+                document.getElementById('repo-header').innerHTML = `
+                    <div class="repo-title">
+                        <img src="${currentRepo.owner.avatar_url}" alt="${currentRepo.owner.login}" class="repo-view-avatar">
+                        <div>
+                            <div class="repo-view-name">${currentRepo.full_name}</div>
+                            <div class="repo-view-description">${currentRepo.description || 'No description provided'}</div>
+                        </div>
+                    </div>
+                    <div class="repo-stats">
+                        <span>⭐ ${currentRepo.stargazers_count} stars</span>
+                        <span>🍴 ${currentRepo.forks_count} forks</span>
+                        <span>🐛 ${currentRepo.open_issues_count} issues</span>
+                        <span>${currentRepo.language || 'Unknown'}</span>
+                    </div>
+                    <div class="repo-actions">
+                        <button class="btn" onclick="editRepository()">Edit repository</button>
+                        <button class="btn btn-primary" onclick="createNewFile()">New file</button>
+                    </div>
+                `;
+
+                // Load repository files
+                await loadRepositoryFiles(repoFullName);
+                switchView('repository-view');
+            } catch (error) {
+                console.error('Error opening repository:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                }
+            }
+        }
+
+        // Load repository files with error handling
+        async function loadRepositoryFiles(repoFullName) {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repoFullName}/contents`, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to load files');
+                }
+                
+                currentFiles = await response.json();
+                displayFiles(currentFiles);
+                hideTokenError();
+            } catch (error) {
+                console.error('Failed to load files:', error);
+                document.getElementById('file-browser').innerHTML = `
+                    <div class="file-header">
+                        <div class="file-path">${repoFullName}</div>
+                        <div class="file-actions">
+                            <button class="btn">Upload file</button>
+                        </div>
+                    </div>
+                    <div style="padding: 40px; text-align: center; color: #586069;">
+                        ${error.message.includes('Invalid GitHub token') ? 
+                          'Token error. Please update your GitHub token.' : 
+                          'Failed to load files'}
+                    </div>
+                `;
+            }
+        }
+
+        // Display files
+        function displayFiles(files) {
+            const container = document.getElementById('file-browser');
+            
+            const filesHTML = files.map(file => `
+                <div class="file-item" onclick="${file.type === 'dir' ? `alert('Directory browsing coming soon!')` : `openFile('${file.path}')`}">
+                    <div class="file-icon">${file.type === 'dir' ? '📁' : '📄'}</div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${file.type === 'dir' ? '' : formatFileSize(file.size)}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="file-header">
+                    <div class="file-path">${currentRepo.full_name}</div>
+                    <div class="file-actions">
+                        <button class="btn" onclick="uploadFile()">Upload file</button>
+                    </div>
+                </div>
+                <div class="file-list">
+                    ${filesHTML}
+                </div>
+            `;
+        }
+
+        // Open file for editing with error handling
+        async function openFile(filePath) {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${currentRepo.full_name}/contents/${filePath}`, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to load file');
+                }
+                
+                const fileData = await response.json();
+                currentFileContent = {
+                    repo: currentRepo.full_name,
+                    path: filePath,
+                    sha: fileData.sha,
+                    content: atob(fileData.content)
+                };
+                
+                document.getElementById('current-file-path').textContent = `${currentRepo.full_name}/${filePath}`;
+                document.getElementById('code-editor').value = currentFileContent.content;
+                switchView('code-view');
+                hideTokenError();
+            } catch (error) {
+                console.error('Failed to load file:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                    alert('Token error. Please update your GitHub token.');
+                } else {
+                    alert('Failed to load file');
+                }
+            }
+        }
+
+        // Save file with error handling
+        async function saveFile() {
+            if (!currentFileContent) return;
+            
+            const newContent = document.getElementById('code-editor').value;
+            
+            try {
+                const response = await fetch(`https://api.github.com/repos/${currentFileContent.repo}/contents/${currentFileContent.path}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        message: `Update ${currentFileContent.path}`,
+                        content: btoa(newContent),
+                        sha: currentFileContent.sha
+                    })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to save file');
+                }
+
+                alert('File saved successfully!');
+                hideTokenError();
+            } catch (error) {
+                console.error('Error saving file:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                    alert('Token error. Please update your GitHub token.');
+                } else {
+                    alert('Error saving file: ' + error.message);
+                }
+            }
+        }
+
+        // Edit profile with error handling
+        async function saveProfileChanges(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('edit-profile-name').value;
+            const bio = document.getElementById('edit-profile-bio').value;
+            const company = document.getElementById('edit-profile-company').value;
+            const location = document.getElementById('edit-profile-location').value;
+            const blog = document.getElementById('edit-profile-blog').value;
+
+            try {
+                const response = await fetch('https://api.github.com/user', {
+                    method: 'PATCH',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        name: name,
+                        bio: bio,
+                        company: company,
+                        location: location,
+                        blog: blog
+                    })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to update profile');
+                }
+
+                userData = await response.json();
+                updateUserInterface();
+                updateProfileView();
+                closeModal('edit-profile-modal');
+                alert('Profile updated successfully!');
+                hideTokenError();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                    alert('Token error. Please update your GitHub token.');
+                } else {
+                    alert('Error updating profile: ' + error.message);
+                }
+            }
+        }
+
+        // Create new repository with error handling
+        async function createNewRepository(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('new-repo-name').value;
+            const description = document.getElementById('new-repo-description').value;
+            const isPrivate = document.getElementById('new-repo-private').checked;
+            const addReadme = document.getElementById('new-repo-readme').checked;
+
+            try {
+                const response = await fetch('https://api.github.com/user/repos', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        private: isPrivate,
+                        auto_init: addReadme
+                    })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showTokenError();
+                        throw new Error('Invalid GitHub token');
+                    }
+                    throw new Error('Failed to create repository');
+                }
+
+                closeModal('create-repo-modal');
+                alert('Repository created successfully!');
+                document.getElementById('create-repo-form').reset();
+                await loadRepositories();
+                updateDashboardStats();
+                hideTokenError();
+            } catch (error) {
+                console.error('Error creating repository:', error);
+                if (error.message.includes('Invalid GitHub token')) {
+                    showTokenError();
+                    alert('Token error. Please update your GitHub token.');
+                } else {
+                    alert('Error creating repository: ' + error.message);
+                }
+            }
+        }
+
+        // Brad AI Assistant
+        function setupAIAssistant() {
+            const aiToggle = document.getElementById('ai-toggle');
+            const aiChat = document.getElementById('ai-chat');
+            const aiInput = document.getElementById('ai-input');
+            const aiMessages = document.getElementById('ai-messages');
+            const voiceBtn = document.getElementById('voice-btn');
+
+            // Toggle AI chat
+            aiToggle.addEventListener('click', () => {
+                aiChat.classList.toggle('active');
+                if (aiChat.classList.contains('active')) {
+                    aiInput.focus();
+                }
+            });
+
+            // Handle AI input
+            aiInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && aiInput.value.trim()) {
+                    const userMessage = aiInput.value.trim();
+                    addMessage(userMessage, 'user');
+                    aiInput.value = '';
+                    
+                    // Process the command
+                    processAICommand(userMessage);
+                }
+            });
+
+            // Handle voice button
+            voiceBtn.addEventListener('click', () => {
+                startVoiceRecognition();
+            });
+        }
+
+        function addMessage(text, sender) {
+            const aiMessages = document.getElementById('ai-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${sender}`;
+            messageDiv.textContent = text;
+            aiMessages.appendChild(messageDiv);
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
+
+        async function processAICommand(command) {
+            // Convert to lowercase for easier matching
+            const lowerCommand = command.toLowerCase();
+            
+            // Check for token update
+            if (lowerCommand.includes('update token') || lowerCommand.includes('change token') || lowerCommand.includes('new token')) {
+                addMessage("Opening token update dialog...", 'bot');
+                showTokenModal();
+                return;
+            }
+            
+            // Check for repository creation
+            if (lowerCommand.includes('create') && lowerCommand.includes('repository')) {
+                const repoName = extractRepoName(command);
+                if (repoName) {
+                    await createRepositoryWithAI(repoName);
+                } else {
+                    addMessage("What would you like to name your new repository?", 'bot');
+                }
+                return;
+            }
+            
+            // Check for file addition
+            if ((lowerCommand.includes('add') || lowerCommand.includes('create')) && 
+                (lowerCommand.includes('file') || lowerCommand.includes('readme'))) {
+                await addFileWithAI(command);
+                return;
+            }
+            
+            // Check for repository listing
+            if (lowerCommand.includes('list') && lowerCommand.includes('repository')) {
+                listRepositoriesWithAI();
+                return;
+            }
+            
+            // Check for help
+            if (lowerCommand.includes('help')) {
+                addMessage("I can help you with:\n- Creating repositories: 'Create a repository called my-project'\n- Adding files: 'Add a README file to my-project'\n- Listing repositories: 'Show my repositories'\n- Opening repositories: 'Open my-project'\n- Adding content to files: 'Add a license file to my-project'\n- Searching repositories: 'Search for python projects'\n- Viewing stats: 'Show my stats'\n- Updating token: 'Update token'\n- Logging out: 'Log out'", 'bot');
+                return;
+            }
+            
+            // Check for repository opening
+            if (lowerCommand.includes('open') && lowerCommand.includes('repository')) {
+                const repoName = extractRepoName(command);
+                if (repoName) {
+                    openRepositoryWithAI(repoName);
+                } else {
+                    addMessage("Which repository would you like to open?", 'bot');
+                }
+                return;
+            }
+            
+            // Check for logout
+            if (lowerCommand.includes('log out') || lowerCommand.includes('logout') || lowerCommand.includes('sign out')) {
+                addMessage("Logging you out...", 'bot');
+                setTimeout(() => {
+                    logout();
+                }, 1000);
+                return;
+            }
+            
+            // Check for repository deletion
+            if (lowerCommand.includes('delete') && lowerCommand.includes('repository')) {
+                const repoName = extractRepoName(command);
+                if (repoName) {
+                    deleteRepositoryWithAI(repoName);
+                } else {
+                    addMessage("Which repository would you like to delete?", 'bot');
+                    return;
+                }
+            }
+            
+            // Check for profile update
+            if (lowerCommand.includes('update') && lowerCommand.includes('profile')) {
+                updateProfileWithAI(command);
+                return;
+            }
+            
+            // Check for repository search
+            if (lowerCommand.includes('search') && lowerCommand.includes('repository')) {
+                const searchTerm = extractSearchTerm(command);
+                if (searchTerm) {
+                    searchRepositoriesWithAI(searchTerm);
+                } else {
+                    addMessage("What would you like to search for in your repositories?", 'bot');
+                }
+                return;
+            }
+            
+            // Check for repository stats
+            if (lowerCommand.includes('stats') || lowerCommand.includes('statistics')) {
+                showStatsWithAI();
+                return;
+            }
+            
+            // Default response
+            addMessage("I'm not sure what you're asking for. Try asking me to create a repository, add a file, or type 'help' for more options.", 'bot');
+        }
+
+        function extractRepoName(command) {
+            // Simple extraction - look for words after "repository" or "repo"
+            const repoMatch = command.match(/(?:repository|repo)\s+(?:called\s+)?([^\s,.]+)/i);
+            if (repoMatch && repoMatch[1]) {
+                return repoMatch[1];
+            }
+            
+            // Try to extract from "create X" pattern
+            const createMatch = command.match(/create\s+([^\s,.]+)/i);
+            if (createMatch && createMatch[1]) {
+                return createMatch[1];
+            }
+            
+            // Try to extract from "open X" pattern
+            const openMatch = command.match(/open\s+([^\s,.]+)/i);
+            if (openMatch && openMatch[1]) {
+                return openMatch[1];
+            }
+            
+            // Try to extract from "delete X" pattern
+            const deleteMatch = command.match(/delete\s+([^\s,.]+)/i);
+            if (deleteMatch && deleteMatch[1]) {
+                return deleteMatch[1];
+            }
+            
+            return null;
+        }
+
+        function extractSearchTerm(command) {
+            const searchMatch = command.match(/search\s+(?:for\s+)?([^\?]+)/i);
+            return searchMatch ? searchMatch[1].trim() : null;
+        }
+
+        async function createRepositoryWithAI(repoName) {
+            addMessage(`Creating repository "${repoName}"...`, 'bot');
+            
+            try {
+                const response = await fetch('https://api.github.com/user/repos', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        name: repoName,
+                        description: "Repository created with Brad AI",
+                        private: false,
+                        auto_init: true
+                    })
+                });
+
+                if (response.ok) {
+                    addMessage(`Repository "${repoName}" created successfully!`, 'bot');
+                    await loadRepositories();
+                    updateDashboardStats();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create repository');
+                }
+            } catch (error) {
+                addMessage(`Error creating repository: ${error.message}`, 'bot');
+            }
+        }
+
+        async function addFileWithAI(command) {
+            const lowerCommand = command.toLowerCase();
+            let fileName = 'README.md';
+            let fileContent = '# Project Title\n\nProject description goes here.';
+            
+            // Determine file type based on command
+            if (lowerCommand.includes('license')) {
+                fileName = 'LICENSE';
+                fileContent = 'MIT License\n\nCopyright (c) 2023\n\nPermission is hereby granted...';
+            } else if (lowerCommand.includes('gitignore')) {
+                fileName = '.gitignore';
+                fileContent = 'node_modules/\n.env\n.DS_Store\n*.log';
+            } else if (lowerCommand.includes('index') || lowerCommand.includes('html')) {
+                fileName = 'index.html';
+                fileContent = '<!DOCTYPE html>\n<html>\n<head>\n    <title>My Project</title>\n</head>\n<body>\n    <h1>Hello World!</h1>\n</body>\n</html>';
+            }
+            
+            // Extract repository name if provided
+            const repoName = extractRepoName(command);
+            let targetRepo = currentRepo;
+            
+            if (repoName) {
+                targetRepo = repositories.find(r => r.name === repoName || r.full_name.includes(repoName));
+                if (!targetRepo) {
+                    addMessage(`Repository "${repoName}" not found. Please specify an existing repository.`, 'bot');
+                    return;
+                }
+            }
+            
+            if (!targetRepo) {
+                addMessage("Please open a repository first or specify which repository to add the file to.", 'bot');
+                return;
+            }
+            
+            addMessage(`Adding ${fileName} to ${targetRepo.name}...`, 'bot');
+            
+            try {
+                const response = await fetch(`https://api.github.com/repos/${targetRepo.full_name}/contents/${fileName}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        message: `Add ${fileName} via Brad AI`,
+                        content: btoa(fileContent)
+                    })
+                });
+
+                if (response.ok) {
+                    addMessage(`${fileName} added successfully to ${targetRepo.name}!`, 'bot');
+                    if (targetRepo === currentRepo) {
+                        await loadRepositoryFiles(targetRepo.full_name);
+                    }
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to add file');
+                }
+            } catch (error) {
+                addMessage(`Error adding file: ${error.message}`, 'bot');
+            }
+        }
+
+        function listRepositoriesWithAI() {
+            if (repositories.length === 0) {
+                addMessage("You don't have any repositories yet.", 'bot');
+                return;
+            }
+            
+            let message = "Your repositories:\n";
+            repositories.slice(0, 10).forEach(repo => {
+                message += `- ${repo.name} (${repo.private ? 'Private' : 'Public'}) - ${repo.stargazers_count} ⭐\n`;
+            });
+            
+            if (repositories.length > 10) {
+                message += `... and ${repositories.length - 10} more`;
+            }
+            
+            addMessage(message, 'bot');
+        }
+
+        function openRepositoryWithAI(repoName) {
+            const targetRepo = repositories.find(r => r.name === repoName || r.full_name.includes(repoName));
+            if (!targetRepo) {
+                addMessage(`Repository "${repoName}" not found.`, 'bot');
+                return;
+            }
+            
+            addMessage(`Opening repository "${targetRepo.name}"...`, 'bot');
+            openRepository(targetRepo.full_name);
+        }
+
+        async function deleteRepositoryWithAI(repoName) {
+            const targetRepo = repositories.find(r => r.name === repoName || r.full_name.includes(repoName));
+            if (!targetRepo) {
+                addMessage(`Repository "${repoName}" not found.`, 'bot');
+                return;
+            }
+            
+            addMessage(`Are you sure you want to delete "${targetRepo.name}"? This action cannot be undone. Type "yes" to confirm.`, 'bot');
+            
+            // Wait for confirmation
+            const aiInput = document.getElementById('ai-input');
+            const originalPlaceholder = aiInput.placeholder;
+            aiInput.placeholder = 'Type "yes" to confirm deletion...';
+            
+            const confirmHandler = (e) => {
+                if (e.key === 'Enter' && aiInput.value.trim().toLowerCase() === 'yes') {
+                    aiInput.removeEventListener('keypress', confirmHandler);
+                    aiInput.placeholder = originalPlaceholder;
+                    performDeleteRepository(targetRepo);
+                } else if (e.key === 'Enter') {
+                    addMessage('Deletion cancelled.', 'bot');
+                    aiInput.removeEventListener('keypress', confirmHandler);
+                    aiInput.placeholder = originalPlaceholder;
+                    aiInput.value = '';
+                }
+            };
+            
+            aiInput.addEventListener('keypress', confirmHandler);
+        }
+
+        async function performDeleteRepository(repo) {
+            addMessage(`Deleting repository "${repo.name}"...`, 'bot');
+            
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repo.full_name}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                if (response.ok) {
+                    addMessage(`Repository "${repo.name}" deleted successfully!`, 'bot');
+                    await loadRepositories();
+                    updateDashboardStats();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete repository');
+                }
+            } catch (error) {
+                addMessage(`Error deleting repository: ${error.message}`, 'bot');
+            }
+        }
+
+        function updateProfileWithAI(command) {
+            addMessage("Opening profile editor...", 'bot');
+            showEditProfileModal();
+        }
+
+        function searchRepositoriesWithAI(searchTerm) {
+            const matchingRepos = repositories.filter(repo => 
+                repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (repo.description && repo.description.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+            
+            if (matchingRepos.length === 0) {
+                addMessage(`No repositories found matching "${searchTerm}".`, 'bot');
+                return;
+            }
+            
+            let message = `Found ${matchingRepos.length} repositories matching "${searchTerm}":\n`;
+            matchingRepos.slice(0, 5).forEach(repo => {
+                message += `- ${repo.name}: ${repo.description || 'No description'}\n`;
+            });
+            
+            if (matchingRepos.length > 5) {
+                message += `... and ${matchingRepos.length - 5} more`;
+            }
+            
+            addMessage(message, 'bot');
+        }
+
+        function showStatsWithAI() {
+            const totalStars = repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+            const totalForks = repositories.reduce((sum, repo) => sum + repo.forks_count, 0);
+            const publicRepos = repositories.filter(repo => !repo.private).length;
+            const privateRepos = repositories.filter(repo => repo.private).length;
+            
+            const mostStarred = [...repositories].sort((a, b) => b.stargazers_count - a.stargazers_count)[0];
+            const mostForked = [...repositories].sort((a, b) => b.forks_count - a.forks_count)[0];
+            
+            let message = `Your GitHub Statistics:\n`;
+            message += `- Total repositories: ${repositories.length}\n`;
+            message += `- Public: ${publicRepos}, Private: ${privateRepos}\n`;
+            message += `- Total stars: ${totalStars}\n`;
+            message += `- Total forks: ${totalForks}\n`;
+            
+            if (mostStarred) {
+                message += `- Most starred: ${mostStarred.name} (${mostStarred.stargazers_count} ⭐)\n`;
+            }
+            
+            if (mostForked) {
+                message += `- Most forked: ${mostForked.name} (${mostForked.forks_count} 🍴)`;
+            }
+            
+            addMessage(message, 'bot');
+        }
+
+        // Utility functions
+        function getHeaders() {
+            return {
+                'Authorization': `Bearer ${accessToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function updateUserInterface() {
+            document.getElementById('user-name').textContent = userData.login;
+            document.getElementById('user-avatar').src = userData.avatar_url;
+            document.getElementById('sidebar-avatar').src = userData.avatar_url;
+            document.getElementById('sidebar-name').textContent = userData.name || userData.login;
+            document.getElementById('sidebar-username').textContent = userData.login;
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.content-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(`${viewName}-view`).classList.add('active');
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-view="${viewName}"]`).classList.add('active');
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showEditProfileModal() {
+            document.getElementById('edit-profile-name').value = userData.name || '';
+            document.getElementById('edit-profile-bio').value = userData.bio || '';
+            document.getElementById('edit-profile-company').value = userData.company || '';
+            document.getElementById('edit-profile-location').value = userData.location || '';
+            document.getElementById('edit-profile-blog').value = userData.blog || '';
+            showModal('edit-profile-modal');
+        }
+
+        function showCreateRepoModal() {
+            showModal('create-repo-modal');
+        }
+
+        function getLanguageColor(language) {
+            const colors = {
+                'JavaScript': '#f1e05a',
+                'TypeScript': '#2b7489',
+                'Python': '#3572A5',
+                'Java': '#b07219',
+                'Go': '#00ADD8',
+                'Ruby': '#701516',
+                'PHP': '#4F5D95',
+                'C++': '#f34b7d',
+                'C#': '#178600',
+                'Swift': '#ffac45'
+            };
+            return colors[language] || '#ccc';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Placeholder functions for future features
+        function editRepository() {
+            alert('Repository editing coming soon!');
+        }
+
+        function createNewFile() {
+            alert('New file creation coming soon!');
+        }
+
+        function uploadFile() {
+            alert('File upload coming soon!');
+        }
+
+        // Event listeners
+        document.getElementById('connect-btn').addEventListener('click', connectWithToken);
+        document.getElementById('edit-profile-form').addEventListener('submit', saveProfileChanges);
+        document.getElementById('create-repo-form').addEventListener('submit', createNewRepository);
+        
+        document.querySelectorAll('.nav-link, .nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = item.dataset.view;
+                if (view) {
+                    switchView(view);
+                }
+            });
+        });
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
